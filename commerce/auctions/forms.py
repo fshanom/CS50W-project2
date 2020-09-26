@@ -10,7 +10,7 @@ class ItemForm(forms.ModelForm):
             'name' : forms.TextInput(attrs={'class': 'form-control'}),
             'description' : forms.Textarea(attrs={'class': 'form-control'}),
             'image' : forms.TextInput(attrs={'class': 'form-control','label':'Image URL'}),
-            'category' : forms.CheckboxSelectMultiple(attrs={'class': 'checkbox form-check-row'}),
+            'category' : forms.RadioSelect(attrs={'class': 'checkbox form-check-row'}),
         }
         labels = {
             'image' : 'Image URL'
@@ -23,4 +23,7 @@ class BidsForm(forms.ModelForm):
 
         widgets = {
             'value' : forms.NumberInput(attrs={'class': 'form-control','min':0, 'placeholder':'$'})
+        }
+        labels = {
+            'value' : 'Starting Bid'
         }

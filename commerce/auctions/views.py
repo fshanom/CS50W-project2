@@ -3,12 +3,18 @@ from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
+from django.db.models import Max
 from .forms import ItemForm, BidsForm
 from .models import User, AuctionItem, Bids, Comments, Category
 
 
 def index(request):
-    return render(request, "auctions/index.html")
+    active_items = AuctionItem.objects.filter(status=True)
+    categories = Category.objects.all()
+    return render(request, "auctions/index.html", {
+        'items' : active_items,
+        'categories' : categories
+    })
 
 
 def login_view(request):
@@ -70,28 +76,23 @@ def create_view(request):
         name = request.POST['name']
         description = request.POST['description']
         image_url = request.POST['image']
-        categories = request.POST['category']
+        category_id = request.POST['category']
         value = request.POST['value']
 
         #create item
-        item = AuctionItem(name=name, description=description,image=image_url, status=True)
+        item = AuctionItem(name=name, description=description,image=image_url, status=True, current_price=value)
+        #making the relations
         item.owner = user
+        item.category = Category.objects.get(pk=category_id)
 
         item.save()
 
-        item_category = Category.objects.filter(id=categories)
-        item.category.set(item_category)
-
+        #making the first bid made by the owner of the item
         initial_bid = Bids(value=value)
         initial_bid.buyer = user
         initial_bid.item = item
         initial_bid.save()
 
-        
-        
-
-        
-        
         return HttpResponseRedirect(reverse("index"))
     else:
         #validate if the user is logged in
@@ -104,3 +105,15 @@ def create_view(request):
             return render(request, "auctions/login.html", {
                 "message": "Login for create a listing."
             })
+
+def item_view(request, item_name):
+    if request.method == "GET":
+        item = AuctionItem.objects.get(name=item_name)
+
+        #get the current highest bid for the items
+        current_bid = Bids.objects.filter(item=item).order_by('-value').first()
+
+        return render(request, "auctions/item.html", {
+            'item' : item,
+            'bid' : current_bid
+        })

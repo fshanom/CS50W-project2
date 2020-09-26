@@ -1,0 +1,75 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+
+<!-- Page Content -->
+<div class="container">
+
+    <div class="row">
+
+        <div class="categories_bar col-lg-3">
+            <h1 class="my-4 text-light">Item nº {{item.id}}</h1>
+            <div class="list-group">
+                <a href="{% url 'index' %}" class="list-group-item text-dark">Back to Active Listings</a>
+            </div>
+        </div>
+
+
+
+        <div class="col-lg-8">
+
+            <div class="card mt-4">
+                <img class="card-img-top img-fluid" src="{{item.image}}" alt="">
+                <div class="card-body">
+                    <h3 class="card-title">{{ item.name }}</h3>
+                    <h4>Current bid: ${{ bid.value }}.</h4>
+                    <p><small class="text-muted">Last bid made by {{bid.buyer}} on {{bid.date}}</small></p>
+                    <a href="#" class="btn btn-dark">Make a Bid!</a>
+
+                </div>
+
+            </div>
+
+            <div class="card card-outline-secondary my-4">
+                <div class="card-header">
+                    Description
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        {{item.description}}
+                        <p>Category: {{item.category}}</p>
+                    </p>
+                    <p><small class="text-muted">Item posted by {{item.owner}} on {{item.date}}</small></p>
+                </div>
+            </div>
+
+            <!-- /.card -->
+
+            <div class="card card-outline-secondary my-4">
+                <div class="card-header">
+                    Product Reviews
+                </div>
+                <div class="card-body">
+                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Omnis et enim aperiam inventore, similique necessitatibus neque non! Doloribus, modi sapiente laboriosam aperiam fugiat laborum. Sequi mollitia, necessitatibus quae sint natus.</p>
+                    <small class="text-muted">Posted by Anonymous on 3/1/17</small>
+                    <hr>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Omnis et enim aperiam inventore, similique necessitatibus neque non! Doloribus, modi sapiente laboriosam aperiam fugiat laborum. Sequi mollitia, necessitatibus quae sint natus.</p>
+                    <small class="text-muted">Posted by Anonymous on 3/1/17</small>
+                    <hr>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Omnis et enim aperiam inventore, similique necessitatibus neque non! Doloribus, modi sapiente laboriosam aperiam fugiat laborum. Sequi mollitia, necessitatibus quae sint natus.</p>
+                    <small class="text-muted">Posted by Anonymous on 3/1/17</small>
+                    <hr>
+                    <a href="#" class="btn btn-success">Leave a Review</a>
+                </div>
+            </div>
+            <!-- /.card -->
+
+        </div>
+        <!-- /.col-lg-9 -->
+
+    </div>
+
+</div>
+<!-- /.container -->
+
+{% endblock %}
