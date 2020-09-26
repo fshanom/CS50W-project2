@@ -18,21 +18,30 @@
 
             <div class="categories_bar col-lg-3">
 
-                <h1 class="my-4 text-light">Active Listings</h1>
+                <h1 class="my-4 text-light">My Watchlist</h1>
                 <div class="list-group">
-                    <a class="list-group-item list-group-item-dark">Categories</a>
-                    {% for category in categories %}
-                        <a href="{% url 'category' category.name %}" class="list-group-item text-dark">{{category.name}}</a>
-                    {% endfor %}
-                    <a href="{% url 'index' %}" class="list-group-item text-dark">All Categories</a>
-                    <a class="btn btn-dark" href="{% url 'create' %}" role="button">Create New Listing</a>
-
+                    <div class="list-group">
+                        <a href="{% url 'index' %}" class="list-group-item text-dark">Back to Active Listings</a>
+                    </div>
                 </div>
 
             </div>
 
             <!-- Printing items -->
-            {% if items is not None %}
+            {% if items == None %}
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h4 class="card-title">
+                                <a href="#">No items available</a>
+                            </h4>
+                        </div>
+                        <div class="card-footer">
+                            <small class="text-muted">Add one!</small>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
                 {% for item in items %}
                     <div class="col-lg-4 col-md-6 mb-4">
                         <div class="card h-100">

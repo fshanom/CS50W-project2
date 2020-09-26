@@ -37,6 +37,15 @@ body {
     background-size: cover;
 }
 
+.card-signin .card-item .card-image {
+    display: block;
+    max-width: 500px;
+    width: 100%;
+    height: auto;
+    object-fit: scale-down;
+    padding: 30px;
+}
+
 .card-signin .card-img-right {
     width: -45%;
     /* Link to your background image using in the property below! */
@@ -50,7 +59,9 @@ body {
 
 .card-img-top {
     height: auto;
+    max-height: 300px;
     width: 100%;
+    object-fit: scale-down;
 }
 
 .form-signin {
@@ -143,6 +154,10 @@ body {
     height: 60px;
     bottom: 0;
 
+}
+
+.button-item{
+    margin-top: 10px;
 }
 
 div .item {

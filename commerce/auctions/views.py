@@ -6,6 +6,7 @@ from django.urls import reverse
 from django.db.models import Max
 from .forms import ItemForm, BidsForm
 from .models import User, AuctionItem, Bids, Comments, Category
+from decimal import Decimal
 
 
 def index(request):
@@ -16,6 +17,15 @@ def index(request):
         'categories' : categories
     })
 
+def category_view(request, category_name):
+    category = Category.objects.get(name=category_name)
+    active_items = AuctionItem.objects.filter(status=True, category=category)
+    categories = Category.objects.all()
+
+    return render(request, "auctions/index.html", {
+        'items' : active_items,
+        'categories' : categories
+    })
 
 def login_view(request):
     if request.method == "POST":
@@ -77,10 +87,10 @@ def create_view(request):
         description = request.POST['description']
         image_url = request.POST['image']
         category_id = request.POST['category']
-        value = request.POST['value']
+        initial_price = request.POST['current_price']
 
         #create item
-        item = AuctionItem(name=name, description=description,image=image_url, status=True, current_price=value)
+        item = AuctionItem(name=name, description=description,image=image_url, status=True, current_price=initial_price)
         #making the relations
         item.owner = user
         item.category = Category.objects.get(pk=category_id)
@@ -88,7 +98,7 @@ def create_view(request):
         item.save()
 
         #making the first bid made by the owner of the item
-        initial_bid = Bids(value=value)
+        initial_bid = Bids(value=initial_price)
         initial_bid.buyer = user
         initial_bid.item = item
         initial_bid.save()
@@ -144,3 +154,38 @@ def remove_watchlist(request, item_id):
         request.user.watchlist.remove(item)
 
         return HttpResponseRedirect(reverse("item", args=[item.name]))
+
+def watchlist_view(request):
+    try:
+        watchlist_items = AuctionItem.objects.filter(watchlist=request.user)
+    except AuctionItem.DoesNotExist:
+        watchlist_items = None
+
+    return render(request, "auctions/mywatchlist.html", {
+        'items' : watchlist_items
+    })
+
+def make_bid(request, item_id):
+    if request.method == "POST":
+        bid_value = Decimal(request.POST['value'])
+        item = AuctionItem.objects.get(pk=item_id)
+        current_bid = Bids.objects.filter(item=item).order_by('-value').first()
+
+        if bid_value > current_bid.value:
+            new_bid = Bids(value=bid_value, item=item, buyer=request.user)
+            item.current_price = bid_value
+            item.save()
+            new_bid.save()
+            return HttpResponseRedirect(reverse("item", args=[item.name]))
+        else:
+            return render(request, "auctions/makebid.html", {
+                "item" : item,
+                "message": "Your bid must be higher than the current one.",
+                'bid_form' : BidsForm()
+            })
+    else:
+        item = AuctionItem.objects.get(pk=item_id)
+        return render(request, "auctions/makebid.html", {
+        'item' : item,
+        'bid_form' : BidsForm()
+        })

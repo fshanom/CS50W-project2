@@ -1,0 +1,35 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+
+{% if message %}
+    <div class="alert alert-danger" role="alert">
+        {{ message }}
+    </div>
+{% endif %}
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-8 col-md-8 col-lg-8 col-xl-10 mx-auto">
+                <div class="card card-signin flex-row my-5">
+
+                    <div class="card-body">
+                        <h5 class="card-title text-center">Bid on item ID: {{item.id}} - {{item.name}}</h5>
+                        <form class="" action="{% url 'make_bid' item.id %}" method="post">
+                            {% csrf_token %}
+                            <div class="">
+                                {{ bid_form.as_p }}
+                                <p>Item Current Price: ${{ item.current_price }}</p>
+                            </div>
+                            <button class="btn btn-lg btn-dark btn-block" type="submit">Make Bid</button>
+                        </form>
+                    </div>
+                    <div class="card-item">
+                        <img class="card-image" src="{{item.image}}" alt="">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

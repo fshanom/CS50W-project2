@@ -25,18 +25,25 @@
                     <h4>Current bid: ${{ bid.value }}.</h4>
                     <p><small class="text-muted">Last bid made by {{bid.buyer}} on {{bid.date}}</small></p>
                     {% if user.is_authenticated %}
-                        <a href="#" class="btn btn-dark">Make a Bid</a>
+                            <a href="{% url 'make_bid' item.id %}" class="btn btn-dark">Make a Bid</a>
                         {% if watchlist_validation %}
-                            <form class="" action="{% url 'add_watchlist' item.id %}" method="post">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-dark">Add to Watchlist</button>
-                            </form>
+                            <div class="button-item">
+                                <form class="" action="{% url 'add_watchlist' item.id %}" method="post">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-dark" id="form-btn">Add to Watchlist</button>
+                                </form>
+                            </div>
                         {% else %}
-                            <form class="" action="{% url 'remove_watchlist' item.id %}" method="post">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-dark">Remove from Watchlist</button>
-                            </form>
+                            <div class="button-item">
+                                <form class="" action="{% url 'remove_watchlist' item.id %}" method="post">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-dark">Remove from Watchlist</button>
+                                </form>
+                            </div>
                         {% endif %}
+                    {% else %}
+                        <a href="{% url 'login' %}" class="btn btn-dark">Make a Bid</a>
+                        <a href="{% url 'login' %}" class="btn btn-dark">Add to Watchlist</a>
                     {% endif %}
                 </div>
 

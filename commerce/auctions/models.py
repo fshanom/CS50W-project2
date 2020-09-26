@@ -20,7 +20,7 @@ class AuctionItem(models.Model):
     image = models.URLField(blank=True)
     status = models.BooleanField(blank=True)
     date = models.DateTimeField(auto_now_add=True)
-    current_price = models.DecimalField(max_digits=10,decimal_places=2, default=0, validators=[MinValueValidator(0.01)])
+    current_price = models.DecimalField(max_digits=10,decimal_places=2, validators=[MinValueValidator(0.01)])
 
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="listings", default=None)
     category = models.ForeignKey(Category, on_delete=models.SET(None), null=True,related_name="category")
