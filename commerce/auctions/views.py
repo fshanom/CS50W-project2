@@ -113,7 +113,34 @@ def item_view(request, item_name):
         #get the current highest bid for the items
         current_bid = Bids.objects.filter(item=item).order_by('-value').first()
 
+        watchlist_users = item.watchlist.all()
+
+        if request.user in watchlist_users:
+            watchlist_validation = False
+        else:
+            watchlist_validation = True
+
         return render(request, "auctions/item.html", {
             'item' : item,
-            'bid' : current_bid
+            'bid' : current_bid,
+            'watchlist_validation' : watchlist_validation
         })
+
+def add_watchlist(request, item_id):
+    if request.method == "POST":
+        item = AuctionItem.objects.get(pk=item_id)
+        user = User.objects.filter(username=request.user.username)
+
+        item.watchlist.set(user)
+        #item.save()
+
+        return HttpResponseRedirect(reverse("item", args=[item.name]))
+
+def remove_watchlist(request, item_id):
+    if request.method == "POST":
+        item = AuctionItem.objects.get(pk=item_id)
+        user = User.objects.filter(username=request.user.username)
+
+        request.user.watchlist.remove(item)
+
+        return HttpResponseRedirect(reverse("item", args=[item.name]))

@@ -24,8 +24,20 @@
                     <h3 class="card-title">{{ item.name }}</h3>
                     <h4>Current bid: ${{ bid.value }}.</h4>
                     <p><small class="text-muted">Last bid made by {{bid.buyer}} on {{bid.date}}</small></p>
-                    <a href="#" class="btn btn-dark">Make a Bid!</a>
-
+                    {% if user.is_authenticated %}
+                        <a href="#" class="btn btn-dark">Make a Bid</a>
+                        {% if watchlist_validation %}
+                            <form class="" action="{% url 'add_watchlist' item.id %}" method="post">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-dark">Add to Watchlist</button>
+                            </form>
+                        {% else %}
+                            <form class="" action="{% url 'remove_watchlist' item.id %}" method="post">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-dark">Remove from Watchlist</button>
+                            </form>
+                        {% endif %}
+                    {% endif %}
                 </div>
 
             </div>
