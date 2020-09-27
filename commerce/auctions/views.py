@@ -7,6 +7,8 @@ from django.db.models import Max
 from .forms import ItemForm, BidsForm
 from .models import User, AuctionItem, Bids, Comments, Category
 from decimal import Decimal
+from django.contrib.auth.decorators import login_required
+
 
 
 def index(request):
@@ -50,7 +52,6 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     return HttpResponseRedirect(reverse("index"))
-
 
 def register(request):
     if request.method == "POST":
@@ -97,19 +98,12 @@ def create_view(request):
 
         item.save()
 
-        #making the first bid made by the owner of the item
-        initial_bid = Bids(value=initial_price)
-        initial_bid.buyer = user
-        initial_bid.item = item
-        initial_bid.save()
-
         return HttpResponseRedirect(reverse("index"))
     else:
         #validate if the user is logged in
         if request.user.is_authenticated:
             return render(request, "auctions/create.html", {
                 "form" : ItemForm(),
-                "bid_form" : BidsForm()
             })
         else:
             return render(request, "auctions/login.html", {
@@ -125,10 +119,14 @@ def item_view(request, item_name):
 
         watchlist_users = item.watchlist.all()
 
+        #this is the variable that checks if the item is in the watchlist of the user
         if request.user in watchlist_users:
             watchlist_validation = False
         else:
             watchlist_validation = True
+
+        #this variable checks if the item has a bid or is in his initial price
+
 
         return render(request, "auctions/item.html", {
             'item' : item,
@@ -136,6 +134,7 @@ def item_view(request, item_name):
             'watchlist_validation' : watchlist_validation
         })
 
+@login_required(login_url='login')
 def add_watchlist(request, item_id):
     if request.method == "POST":
         item = AuctionItem.objects.get(pk=item_id)
@@ -146,6 +145,7 @@ def add_watchlist(request, item_id):
 
         return HttpResponseRedirect(reverse("item", args=[item.name]))
 
+@login_required(login_url='login')
 def remove_watchlist(request, item_id):
     if request.method == "POST":
         item = AuctionItem.objects.get(pk=item_id)
@@ -155,6 +155,7 @@ def remove_watchlist(request, item_id):
 
         return HttpResponseRedirect(reverse("item", args=[item.name]))
 
+@login_required(login_url='login')
 def watchlist_view(request):
     try:
         watchlist_items = AuctionItem.objects.filter(watchlist=request.user)
@@ -165,24 +166,48 @@ def watchlist_view(request):
         'items' : watchlist_items
     })
 
+def close_auction(request, item_id):
+    if request.method == "POST":
+        item = AuctionItem.objects.get(id=item_id)
+        item.status = False
+        item.save()
+
+        return HttpResponseRedirect(reverse("item", args=[item.name]))
+
+@login_required(login_url='login')
 def make_bid(request, item_id):
     if request.method == "POST":
         bid_value = Decimal(request.POST['value'])
         item = AuctionItem.objects.get(pk=item_id)
-        current_bid = Bids.objects.filter(item=item).order_by('-value').first()
 
-        if bid_value > current_bid.value:
-            new_bid = Bids(value=bid_value, item=item, buyer=request.user)
-            item.current_price = bid_value
-            item.save()
-            new_bid.save()
-            return HttpResponseRedirect(reverse("item", args=[item.name]))
+        if Bids.objects.filter(item=item).exists(): #if already exists a bid on that item
+            current_bid = Bids.objects.filter(item=item).order_by('-value').first()
+            if bid_value > current_bid.value:
+                new_bid = Bids(value=bid_value, item=item, buyer=request.user)
+                item.current_price = bid_value
+                item.save()
+                new_bid.save()
+                return HttpResponseRedirect(reverse("item", args=[item.name]))
+            else:
+                return render(request, "auctions/makebid.html", {
+                    "item" : item,
+                    "message": "Your bid must be higher than the current one.",
+                    'bid_form' : BidsForm()
+                })
         else:
-            return render(request, "auctions/makebid.html", {
-                "item" : item,
-                "message": "Your bid must be higher than the current one.",
-                'bid_form' : BidsForm()
-            })
+            #no one has bid on this item yet, so the value can be equal to the initial price
+            if bid_value >= item.current_price:
+                new_bid = Bids(value=bid_value, item=item, buyer=request.user)
+                item.current_price = bid_value
+                item.save()
+                new_bid.save()
+                return HttpResponseRedirect(reverse("item", args=[item.name]))
+            else:
+                return render(request, "auctions/makebid.html", {
+                    "item" : item,
+                    "message": "Your bid must be higher than the current one.",
+                    'bid_form' : BidsForm()
+                })
     else:
         item = AuctionItem.objects.get(pk=item_id)
         return render(request, "auctions/makebid.html", {

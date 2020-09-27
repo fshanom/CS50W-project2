@@ -22,10 +22,29 @@
                 <img class="card-img-top img-fluid" src="{{item.image}}" alt="">
                 <div class="card-body">
                     <h3 class="card-title">{{ item.name }}</h3>
-                    <h4>Current bid: ${{ bid.value }}.</h4>
-                    <p><small class="text-muted">Last bid made by {{bid.buyer}} on {{bid.date}}</small></p>
-                    {% if user.is_authenticated %}
+
+                    <!-- Price area -->
+                    {% if item.status %}
+                        <h4>Current price: ${{ item.current_price }}.</h4>
+                    {% else %}
+                        <h4>Item sold for ${{ bid.value }}.</h4>
+                        {% if bid.buyer == user %}
+                            <h4>Congratulations {{ bid.buyer }}! You won the auction!</h4>
+                        {% endif %}
+                    {% endif %}
+
+                    <!-- Bid update message -->
+                    {% if bid.buyer is not empty %}
+                        <p><small class="text-muted">Last bid of ${{bid.value}} made by {{bid.buyer}} on {{bid.date}}</small></p>
+                    {% else %}
+                        <p><small class="text-muted">No one has bid on this item yet.</small></p>
+                    {% endif %}
+
+                    <!-- Buttons area.  -->
+                        {% if item.status %}
                             <a href="{% url 'make_bid' item.id %}" class="btn btn-dark">Make a Bid</a>
+                        {% endif %}
+
                         {% if watchlist_validation %}
                             <div class="button-item">
                                 <form class="" action="{% url 'add_watchlist' item.id %}" method="post">
@@ -41,32 +60,45 @@
                                 </form>
                             </div>
                         {% endif %}
+
+                        {% if item.owner == user %}
+                            <div class="button-item">
+                                <form class="" action="{% url 'close_auction' item.id %}" method="post">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-dark">Close Auction</button>
+                                </form>
+                            </div>
+                        {% endif %}
+                    <!--
+                    {% if user.is_authenticated %}
+
                     {% else %}
                         <a href="{% url 'login' %}" class="btn btn-dark">Make a Bid</a>
                         <a href="{% url 'login' %}" class="btn btn-dark">Add to Watchlist</a>
-                    {% endif %}
+                    {% endif %}-->
                 </div>
 
             </div>
 
+            <!-- Description Area -->
             <div class="card card-outline-secondary my-4">
                 <div class="card-header">
                     Description
                 </div>
                 <div class="card-body">
-                    <p class="card-text">
+                    <div class="card-text">
                         {{item.description}}
                         <p>Category: {{item.category}}</p>
-                    </p>
+                    </div>
                     <p><small class="text-muted">Item posted by {{item.owner}} on {{item.date}}</small></p>
                 </div>
             </div>
 
-            <!-- /.card -->
+            <!-- Comments area -->
 
             <div class="card card-outline-secondary my-4">
                 <div class="card-header">
-                    Product Reviews
+                    Comments
                 </div>
                 <div class="card-body">
                     <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Omnis et enim aperiam inventore, similique necessitatibus neque non! Doloribus, modi sapiente laboriosam aperiam fugiat laborum. Sequi mollitia, necessitatibus quae sint natus.</p>
