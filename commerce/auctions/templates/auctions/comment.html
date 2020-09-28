@@ -1,0 +1,29 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-8 col-md-8 col-lg-8 col-xl-10 mx-auto">
+                <div class="card card-signin flex-row my-5">
+
+                    <div class="card-body">
+                        <h5 class="card-title text-center">Comment on {{item.name}}</h5>
+                        <form class="" action="{% url 'comment' item.id %}" method="post">
+                            {% csrf_token %}
+                            <div class="">
+                                <!-- form here -->
+                                {{form.as_p}}
+                            </div>
+                            <button class="btn btn-lg btn-dark btn-block" type="submit">Comment</button>
+                        </form>
+                    </div>
+                    <div class="card-item">
+                        <img class="card-image" src="{{item.image}}" alt="">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

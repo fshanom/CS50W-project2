@@ -8,7 +8,7 @@
     <div class="row">
 
         <div class="categories_bar col-lg-3">
-            <h1 class="my-4 text-light">Item nº {{item.id}}</h1>
+            <h1 class="my-4 text-dark">Item nº {{item.id}}</h1>
             <div class="list-group">
                 <a href="{% url 'index' %}" class="list-group-item text-dark">Back to Active Listings</a>
             </div>
@@ -101,16 +101,15 @@
                     Comments
                 </div>
                 <div class="card-body">
-                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Omnis et enim aperiam inventore, similique necessitatibus neque non! Doloribus, modi sapiente laboriosam aperiam fugiat laborum. Sequi mollitia, necessitatibus quae sint natus.</p>
-                    <small class="text-muted">Posted by Anonymous on 3/1/17</small>
-                    <hr>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Omnis et enim aperiam inventore, similique necessitatibus neque non! Doloribus, modi sapiente laboriosam aperiam fugiat laborum. Sequi mollitia, necessitatibus quae sint natus.</p>
-                    <small class="text-muted">Posted by Anonymous on 3/1/17</small>
-                    <hr>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Omnis et enim aperiam inventore, similique necessitatibus neque non! Doloribus, modi sapiente laboriosam aperiam fugiat laborum. Sequi mollitia, necessitatibus quae sint natus.</p>
-                    <small class="text-muted">Posted by Anonymous on 3/1/17</small>
-                    <hr>
-                    <a href="#" class="btn btn-success">Leave a Review</a>
+                    {% for comment in comments %}
+                        <h5>{{comment.title}}</h5>
+                        <p>{{comment.content}}</p>
+                        <small class="text-muted">Posted by {{comment.user}} on {{comment.time}}</small>
+                        <hr>
+                    {% empty %}
+                        <p>No comments on this item.</p>
+                    {% endfor %}
+                    <a href="{% url 'comment' item.id %}" class="btn btn-dark">Leave a Comment</a>
                 </div>
             </div>
             <!-- /.card -->

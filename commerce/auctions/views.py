@@ -4,8 +4,8 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from django.db.models import Max
-from .forms import ItemForm, BidsForm
-from .models import User, AuctionItem, Bids, Comments, Category
+from .forms import ItemForm, BidForm, CommentForm
+from .models import User, AuctionItem, Bid, Comments, Category
 from decimal import Decimal
 from django.contrib.auth.decorators import login_required
 
@@ -63,7 +63,7 @@ def register(request):
         confirmation = request.POST["confirmation"]
         if password != confirmation:
             return render(request, "auctions/register.html", {
-                "message": "Passwords must match."
+                'message': "Passwords must match."
             })
 
         # Attempt to create new user
@@ -72,7 +72,7 @@ def register(request):
             user.save()
         except IntegrityError:
             return render(request, "auctions/register.html", {
-                "message": "Username already taken."
+                'message': "Username already taken."
             })
         login(request, user)
         return HttpResponseRedirect(reverse("index"))
@@ -103,11 +103,11 @@ def create_view(request):
         #validate if the user is logged in
         if request.user.is_authenticated:
             return render(request, "auctions/create.html", {
-                "form" : ItemForm(),
+                'form' : ItemForm(),
             })
         else:
             return render(request, "auctions/login.html", {
-                "message": "Login for create a listing."
+                'message': "Login for create a listing."
             })
 
 def item_view(request, item_name):
@@ -115,7 +115,7 @@ def item_view(request, item_name):
         item = AuctionItem.objects.get(name=item_name)
 
         #get the current highest bid for the items
-        current_bid = Bids.objects.filter(item=item).order_by('-value').first()
+        current_bid = Bid.objects.filter(item=item).order_by('-value').first()
 
         watchlist_users = item.watchlist.all()
 
@@ -125,13 +125,14 @@ def item_view(request, item_name):
         else:
             watchlist_validation = True
 
-        #this variable checks if the item has a bid or is in his initial price
-
+        #this gets all the comments in the item
+        comments = Comments.objects.filter(item=item)
 
         return render(request, "auctions/item.html", {
             'item' : item,
             'bid' : current_bid,
-            'watchlist_validation' : watchlist_validation
+            'watchlist_validation' : watchlist_validation,
+            'comments' : comments
         })
 
 @login_required(login_url='login')
@@ -157,10 +158,7 @@ def remove_watchlist(request, item_id):
 
 @login_required(login_url='login')
 def watchlist_view(request):
-    try:
-        watchlist_items = AuctionItem.objects.filter(watchlist=request.user)
-    except AuctionItem.DoesNotExist:
-        watchlist_items = None
+    watchlist_items = AuctionItem.objects.filter(watchlist=request.user)
 
     return render(request, "auctions/mywatchlist.html", {
         'items' : watchlist_items
@@ -180,24 +178,24 @@ def make_bid(request, item_id):
         bid_value = Decimal(request.POST['value'])
         item = AuctionItem.objects.get(pk=item_id)
 
-        if Bids.objects.filter(item=item).exists(): #if already exists a bid on that item
-            current_bid = Bids.objects.filter(item=item).order_by('-value').first()
+        if Bid.objects.filter(item=item).exists(): #if already exists a bid on that item
+            current_bid = Bid.objects.filter(item=item).order_by('-value').first()
             if bid_value > current_bid.value:
-                new_bid = Bids(value=bid_value, item=item, buyer=request.user)
+                new_bid = Bid(value=bid_value, item=item, buyer=request.user)
                 item.current_price = bid_value
                 item.save()
                 new_bid.save()
                 return HttpResponseRedirect(reverse("item", args=[item.name]))
             else:
                 return render(request, "auctions/makebid.html", {
-                    "item" : item,
-                    "message": "Your bid must be higher than the current one.",
-                    'bid_form' : BidsForm()
+                    'item' : item,
+                    'message': "Your bid must be higher than the current one.",
+                    'bid_form' : BidForm()
                 })
         else:
             #no one has bid on this item yet, so the value can be equal to the initial price
             if bid_value >= item.current_price:
-                new_bid = Bids(value=bid_value, item=item, buyer=request.user)
+                new_bid = Bid(value=bid_value, item=item, buyer=request.user)
                 item.current_price = bid_value
                 item.save()
                 new_bid.save()
@@ -206,11 +204,31 @@ def make_bid(request, item_id):
                 return render(request, "auctions/makebid.html", {
                     "item" : item,
                     "message": "Your bid must be higher than the current one.",
-                    'bid_form' : BidsForm()
+                    'bid_form' : BidForm()
                 })
     else:
         item = AuctionItem.objects.get(pk=item_id)
         return render(request, "auctions/makebid.html", {
-        'item' : item,
-        'bid_form' : BidsForm()
+            'item' : item,
+            'bid_form' : BidForm()
+        })
+
+@login_required(login_url='login')
+def comment(request, item_id):
+    if request.method == "POST":
+        user = request.user
+        item = AuctionItem.objects.get(pk=item_id)
+        title = request.POST['title']
+        content = request.POST['content']
+
+        new_comment = Comments(title=title, content=content, user=request.user)
+        new_comment.item = item
+        new_comment.save()
+
+        return HttpResponseRedirect(reverse("item", args=[item.name]))
+    else:
+        item = AuctionItem.objects.get(pk=item_id)
+        return render(request, "auctions/comment.html", {
+            'item' : item,
+            'form' : CommentForm()
         })

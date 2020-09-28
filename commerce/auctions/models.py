@@ -30,10 +30,10 @@ class AuctionItem(models.Model):
         return f"Auction Item ID: {self.id} - Name: {self.name}"
 
 #Bids model
-class Bids(models.Model):
+class Bid(models.Model):
     item = models.ForeignKey(AuctionItem, on_delete=models.CASCADE, related_name="item")
     buyer = models.ForeignKey(User, on_delete=models.CASCADE, related_name="bids")
-    value = models.DecimalField(max_digits=10,decimal_places=2, default=0, validators=[MinValueValidator('0.01')])
+    value = models.DecimalField(max_digits=10,decimal_places=2, default=0, validators=[MinValueValidator(0.01)])
     date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -43,9 +43,9 @@ class Bids(models.Model):
 class Comments(models.Model):
     title = models.CharField(max_length=64)
     content = models.CharField(max_length=256)
-    item = models.ForeignKey(AuctionItem, on_delete=models.CASCADE)
+    item = models.ForeignKey(AuctionItem, on_delete=models.CASCADE, default=None)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     time = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Comment ID {self.id} on item {self.item.name} - Made by: {self.user.name} on {self.time}"
+        return f"Comment ID {self.id} on item {self.item.name} - Made by: {self.user} on {self.time}"

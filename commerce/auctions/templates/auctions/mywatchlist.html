@@ -18,7 +18,7 @@
 
             <div class="categories_bar col-lg-3">
 
-                <h1 class="my-4 text-light">My Watchlist</h1>
+                <h1 class="my-4 text-dark">My Watchlist</h1>
                 <div class="list-group">
                     <div class="list-group">
                         <a href="{% url 'index' %}" class="list-group-item text-dark">Back to Active Listings</a>
@@ -28,7 +28,23 @@
             </div>
 
             <!-- Printing items -->
-            {% if items == None %}
+            {% for item in items %}
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="card h-100">
+                        <a href="{% url 'item' item.name %}"><img class="card-img-top" src="{{ item.image }}" alt=""></a>
+                        <div class="card-body">
+                            <h4 class="card-title">
+                                <a href="{% url 'item' item.name %}"">{{ item.name }}</a>
+                            </h4>
+                            <h5>${{item.current_price}}</h5>
+                            <p class="card-text">{{ item.description }}</p>
+                        </div>
+                        <div class="card-footer">
+                            <small class="text-muted">Posted in {{ item.date }}</small>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
                 <div class="col-lg-4 col-md-6 mb-4">
                     <div class="card h-100">
                         <div class="card-body">
@@ -41,25 +57,8 @@
                         </div>
                     </div>
                 </div>
-            {% else %}
-                {% for item in items %}
-                    <div class="col-lg-4 col-md-6 mb-4">
-                        <div class="card h-100">
-                            <a href="{% url 'item' item.name %}"><img class="card-img-top" src="{{ item.image }}" alt=""></a>
-                            <div class="card-body">
-                                <h4 class="card-title">
-                                    <a href="{% url 'item' item.name %}"">{{ item.name }}</a>
-                                </h4>
-                                <h5>${{item.current_price}}</h5>
-                                <p class="card-text">{{ item.description }}</p>
-                            </div>
-                            <div class="card-footer">
-                                <small class="text-muted">Posted in {{ item.date }}</small>
-                            </div>
-                        </div>
-                    </div>
-                {% endfor %}
-            {% endif %}
+            {% endfor %}
+
 
         </div>
         <!-- /.row -->

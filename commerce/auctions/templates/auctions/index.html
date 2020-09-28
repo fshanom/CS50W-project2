@@ -18,7 +18,7 @@
 
             <div class="categories_bar col-lg-3">
 
-                <h1 class="my-4 text-light">Active Listings</h1>
+                <h1 class="my-4 text-dark">Active Listings</h1>
                 <div class="list-group">
                     <a class="list-group-item list-group-item-dark">Categories</a>
                     {% for category in categories %}
@@ -32,7 +32,6 @@
             </div>
 
             <!-- Printing items -->
-            {% if items is not None %}
                 {% for item in items %}
                     <div class="col-lg-4 col-md-6 mb-4">
                         <div class="card h-100">
@@ -49,8 +48,20 @@
                             </div>
                         </div>
                     </div>
+                {% empty %}
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h4 class="card-title">
+                                    <a>No active items available</a>
+                                </h4>
+                            </div>
+                            <div class="card-footer">
+                                <small class="text-muted">Create One!</small>
+                            </div>
+                        </div>
+                    </div>
                 {% endfor %}
-            {% endif %}
 
         </div>
         <!-- /.row -->

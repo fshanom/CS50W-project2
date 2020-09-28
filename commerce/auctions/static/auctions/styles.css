@@ -7,15 +7,12 @@
 
 body {
     padding-top: 56px;
-    background: #007bff;
-    background: linear-gradient(to right, #292b2c, #1d1e1f);
     height: 100%;
 }
 
 .container{
     height: 100%;
 }
-
 
 .card-signin {
     border: 0;
@@ -171,6 +168,12 @@ div .item {
 
     margin: auto;
 	padding-top: 70px;
+}
+
+.footer{
+    position: fixed;
+    bottom: 0;
+    margin-top: 40px;
 }
 
 @media (max-width: 65em) {

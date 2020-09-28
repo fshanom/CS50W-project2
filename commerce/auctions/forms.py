@@ -1,5 +1,5 @@
 from django import forms
-from .models import AuctionItem, Bids
+from .models import AuctionItem, Bid, Comments
 
 class ItemForm(forms.ModelForm):
     class Meta:
@@ -19,9 +19,9 @@ class ItemForm(forms.ModelForm):
             'current_price' : 'Initial Price'
         }
 
-class BidsForm(forms.ModelForm):
+class BidForm(forms.ModelForm):
     class Meta:
-        model = Bids
+        model = Bid
         fields = ['value']
 
         widgets = {
@@ -29,4 +29,18 @@ class BidsForm(forms.ModelForm):
         }
         labels = {
             'value' : 'Bid Value'
+        }
+
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comments
+        fields = ['title', 'content']
+
+        widgets = {
+            'title' : forms.TextInput(attrs={'class': 'form-control'}),
+            'content' : forms.Textarea(attrs={'class': 'form-control'}),
+        }
+        labels = {
+            'title' : 'Title',
+            'content' : 'Comment'
         }
